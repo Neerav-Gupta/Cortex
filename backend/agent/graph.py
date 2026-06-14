@@ -76,6 +76,12 @@ def get_chat_history(listing_id: str) -> list[dict]:
     return CHAT_HISTORY.get(listing_id, [])
 
 
+def clear_chat_history(listing_id: str) -> None:
+    """Clear the chat conversation for a listing (start a new chat)."""
+    CHAT_HISTORY.pop(listing_id, None)
+    save_state()
+
+
 async def send_chat_message(listing_id: str, message: str) -> str:
     """Send a homeowner message to the AI advisor and return its reply,
     persisting both turns in the listing's conversation history."""

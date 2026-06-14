@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bot, Loader2, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { AiInsightBadge } from "@/components/AiInsightBadge";
+import { Sym } from "@/components/ui/sym";
 import { fetchChatHistory, sendChatMessage } from "@/lib/api";
 
 interface AdvisorChatProps {
   listingId: string;
 }
 
+/** Chat transcript + composer that fills its parent (used inside the Assistant panel). */
 export function AdvisorChat({ listingId }: AdvisorChatProps) {
   const [message, setMessage] = useState("");
   const queryClient = useQueryClient();
@@ -41,63 +40,56 @@ export function AdvisorChat({ listingId }: AdvisorChatProps) {
   };
 
   return (
-    <Card className="flex h-[32rem] flex-col">
-      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Bot className="h-4 w-4 text-primary" />
-          Ask Your Pricing Advisor
-        </CardTitle>
-        <AiInsightBadge />
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-3 overflow-hidden">
-        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto pr-1">
-          {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading conversation...</p>
-          ) : !history || history.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
-              <Bot className="h-8 w-8 text-primary/60" />
-              <p>
-                Ask about pricing strategy, timing, or how to interpret your scenarios. Your
-                advisor remembers this conversation.
-              </p>
-            </div>
-          ) : (
-            history.map((turn, index) => (
+    <div className="flex h-full flex-col">
+      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
+        {isLoading ? (
+          <p className="text-sm text-ink-2">Loading conversation…</p>
+        ) : !history || history.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-sm text-ink-2">
+            <Sym name="forum" lg className="text-ink-3" />
+            <p>
+              Ask about pricing strategy, timing, or how to read your scenarios. Your advisor
+              remembers this conversation.
+            </p>
+          </div>
+        ) : (
+          history.map((turn, index) => (
+            <div
+              key={index}
+              className={`flex items-start gap-2 duration-200 ease-fb animate-in fade-in slide-in-from-bottom-1 ${
+                turn.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              {turn.role === "assistant" && (
+                <Sym name="forum" className="mt-1 text-[18px] text-ink-2" />
+              )}
               <div
-                key={index}
-                className={`flex items-start gap-2 ${
-                  turn.role === "user" ? "justify-end" : "justify-start"
+                className={`max-w-[80%] rounded px-3 py-2 text-sm leading-relaxed ${
+                  turn.role === "user" ? "bg-paper-3 text-ink" : "bg-paper text-ink"
                 }`}
               >
-                {turn.role === "assistant" && (
-                  <Bot className="mt-1 h-4 w-4 flex-none text-primary" />
-                )}
-                <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 text-sm leading-relaxed ${
-                    turn.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  {turn.content}
-                </div>
-                {turn.role === "user" && (
-                  <User className="mt-1 h-4 w-4 flex-none text-muted-foreground" />
-                )}
+                {turn.content}
               </div>
-            ))
-          )}
-          {sendMutation.isPending && (
-            <div className="flex items-start gap-2">
-              <Bot className="mt-1 h-4 w-4 flex-none text-primary" />
-              <div className="flex items-center gap-1 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Thinking...
-              </div>
+              {turn.role === "user" && (
+                <Sym name="person" className="mt-1 text-[18px] text-ink-3" />
+              )}
             </div>
-          )}
-        </div>
+          ))
+        )}
+        {sendMutation.isPending && (
+          <div className="flex items-start gap-2">
+            <Sym name="forum" className="mt-1 text-[18px] text-ink-2" />
+            <div className="fb-data rounded bg-paper px-3 py-2 text-sm text-ink-2">
+              measuring
+              <span className="fb-measure-dot">·</span>
+              <span className="fb-measure-dot">·</span>
+              <span className="fb-measure-dot">·</span>
+            </div>
+          </div>
+        )}
+      </div>
 
+      <div className="border-t border-rule p-3">
         <div className="flex items-end gap-2">
           <Textarea
             value={message}
@@ -108,24 +100,23 @@ export function AdvisorChat({ listingId }: AdvisorChatProps) {
                 handleSend();
               }
             }}
-            placeholder="Ask a question about your listing..."
+            placeholder="Ask anything…"
             className="min-h-[44px] resize-none"
             rows={1}
           />
           <Button
             size="icon"
+            aria-label="Send message"
             onClick={handleSend}
             disabled={sendMutation.isPending || !message.trim()}
           >
-            <Send className="h-4 w-4" />
+            <Sym name="send" sm />
           </Button>
         </div>
         {sendMutation.isError && (
-          <p className="text-xs text-destructive">
-            Failed to send message. Please try again.
-          </p>
+          <p className="mt-2 text-xs text-crit">Couldn't send that message — try again.</p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

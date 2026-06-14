@@ -4,26 +4,84 @@
 
 @layer base {
   :root {
-    --background: 222 30% 7%;
-    --foreground: 210 20% 96%;
-    --card: 222 28% 10%;
-    --card-foreground: 210 20% 96%;
-    --popover: 222 28% 10%;
-    --popover-foreground: 210 20% 96%;
-    --primary: 174 62% 47%;
-    --primary-foreground: 222 30% 7%;
-    --secondary: 222 22% 16%;
-    --secondary-foreground: 210 20% 96%;
-    --muted: 222 22% 15%;
-    --muted-foreground: 215 15% 65%;
-    --accent: 222 22% 18%;
-    --accent-foreground: 210 20% 96%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 20% 96%;
-    --border: 222 18% 20%;
-    --input: 222 18% 20%;
-    --ring: 174 62% 47%;
-    --radius: 0.65rem;
+    /* ── Fieldbook light (canonical) ─────────────────────────────── */
+    /* Surfaces — flat, neutral "drafting paper". Never gradients. */
+    --paper: #ececec; /* app background */
+    --paper-2: #f5f5f5; /* cards, panels */
+    --paper-3: #fcfcfc; /* inputs, raised wells */
+
+    /* Ink — text and linework (neutral, no green cast) */
+    --ink: #1c1f21; /* primary text, strong lines */
+    --ink-2: #545a5e; /* secondary text, captions at body size */
+    --ink-3: #84888c; /* tertiary, large/decorative only */
+
+    /* Rules — borders, dividers */
+    --rule: #d7d7d5; /* default 1px hairline */
+    --rule-strong: #bcbcba; /* hover/active borders, heavier dividers */
+
+    /* Accent — the single signal accent (olive green) */
+    --redline: #5d7828; /* current price marker, accent, fairness hatch */
+    --redline-weak: #d8e1c3; /* accent tint for fills/zones */
+
+    /* Strategy temperatures — the only "brand" chroma */
+    --strat-aggressive: #bd4433; /* hot  */
+    --strat-moderate: #b0792b; /* temperate brass */
+    --strat-patient: #3a6486; /* cool */
+
+    /* Status */
+    --ok: #3f7359; /* at/below median, equity retained, passed checks */
+    --warn: #be8a24; /* above median, caution */
+    --crit: #c03a28; /* = redline; critical alerts, failed fairness */
+    --info: #3a6486; /* = patient; neutral notices */
+
+    /* Focus */
+    --focus: #5d7828; /* accent ring */
+
+    /* ── Space / radius / shadow ─────────────────────────────────── */
+    --s-1: 4px;
+    --s-2: 8px;
+    --s-3: 12px;
+    --s-4: 16px;
+    --s-5: 24px;
+    --s-6: 32px;
+    --s-7: 48px;
+    --s-8: 64px;
+    --s-9: 96px;
+
+    --r-sm: 3px;
+    --r: 5px;
+    --r-lg: 8px;
+
+    /* shadcn radius bridge: lg/md/sm derive from --radius (= --r) */
+    --radius: 5px;
+
+    --shadow: 0 1px 2px rgba(24, 36, 42, 0.06), 0 2px 8px rgba(24, 36, 42, 0.05);
+
+    /* Type */
+    --font: "Inter", system-ui, sans-serif;
+  }
+
+  /* ── Fieldbook Night (dark variant) ───────────────────────────── */
+  :root[data-theme="night"] {
+    --paper: #020202; /* app / page content background */
+    --paper-2: #060708; /* cards, panels, sidebar, header */
+    --paper-3: #0d0f11; /* inputs, raised wells */
+    --ink: #e9e9e7;
+    --ink-2: #adaeac;
+    --ink-3: #7f8082;
+    --rule: #303133;
+    --rule-strong: #3f4042;
+    --redline: #7ea22f; /* accent, brightened for the near-black base */
+    --redline-weak: #232b16;
+    --strat-aggressive: #de6452;
+    --strat-moderate: #d29a4a;
+    --strat-patient: #6c9bc0;
+    --ok: #5fa17e;
+    --warn: #d6a33f;
+    --crit: #e0594a;
+    --info: #6c9bc0;
+    --focus: #7ea22f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.25);
   }
 }
 
@@ -31,12 +89,93 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-family: "Inter", system-ui, sans-serif;
-    background-image:
-      radial-gradient(circle at 0% 0%, hsl(174 62% 47% / 0.08), transparent 40%),
-      radial-gradient(circle at 100% 0%, hsl(217 91% 60% / 0.06), transparent 40%);
-    background-attachment: fixed;
+    font-family: var(--font);
+    /* Flat, solid surface — no gradient and no background texture. */
+    background-color: var(--paper);
+  }
+}
+
+@layer components {
+  /* Data / readout role — still Inter, just measured: tabular + slashed 0. */
+  .fb-data {
+    font-feature-settings: "tnum" 1, "cv05" 1, "zero" 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Eyebrow / label role — uppercase, tracked, never a different family. */
+  .fb-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    font-size: 0.75rem; /* 12px */
+    line-height: 1.2;
+    color: var(--ink-2);
+  }
+
+  /* Material Symbols Sharp — crisp drafting linework. */
+  .sym {
+    font-family: "Material Symbols Sharp";
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    display: inline-block;
+    white-space: nowrap;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    font-size: 24px;
+    user-select: none;
+  }
+  .sym--active {
+    font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  }
+  .sym--lg {
+    font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 40;
+    font-size: 40px;
+  }
+  .sym--sm {
+    font-size: 20px;
+  }
+}
+
+@layer utilities {
+  /* Quiet "measuring···" dot animation for the advisor chat thinking state. */
+  @keyframes fb-measure {
+    0%,
+    20% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 1;
+    }
+    80%,
+    100% {
+      opacity: 0.25;
+    }
+  }
+  .fb-measure-dot {
+    animation: fb-measure 1.2s infinite;
+  }
+  .fb-measure-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .fb-measure-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+}
+
+/* Motion is restrained and deferred; honor reduced-motion regardless. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

@@ -109,3 +109,10 @@ export async function sendChatMessage(id: string, message: string): Promise<Chat
   });
   return handleResponse<ChatResponse>(res);
 }
+
+export async function clearChatHistory(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/listing/${id}/chat`, {
+    method: "DELETE",
+  });
+  await handleResponse<{ status: string }>(res);
+}

@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from agent.graph import (
+    clear_chat_history,
     clear_output,
     get_chat_history,
     get_latest_output,
@@ -245,6 +246,13 @@ async def update_listing(listing_id: str, payload: UpdateListingRequest):
 async def get_chat(listing_id: str):
     _validate_listing_id(listing_id)
     return get_chat_history(listing_id)
+
+
+@router.delete("/listing/{listing_id}/chat", response_model=StatusResponse)
+async def clear_chat(listing_id: str):
+    _validate_listing_id(listing_id)
+    clear_chat_history(listing_id)
+    return {"status": "chat cleared"}
 
 
 @router.post("/listing/{listing_id}/chat", response_model=ChatResponse)

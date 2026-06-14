@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Sym } from "@/components/ui/sym";
 import { useToast } from "@/hooks/use-toast";
 import { updateListing } from "@/lib/api";
 import type { ListingData } from "@/lib/types";
@@ -38,10 +38,10 @@ export function EditListingForm({ listingId, listing }: EditListingFormProps) {
       }),
     onSuccess: (output) => {
       queryClient.setQueryData(["listing", listingId], output);
-      toast({ title: "Listing updated", description: "Your changes have been saved." });
+      toast({ title: "Listing updated.", description: "Your pricing strategy was re-run." });
     },
     onError: (error: Error) => {
-      toast({ title: "Failed to update listing", description: error.message, variant: "destructive" });
+      toast({ title: "Couldn't update the listing — try again.", description: error.message, variant: "destructive" });
     },
   });
 
@@ -74,11 +74,11 @@ export function EditListingForm({ listingId, listing }: EditListingFormProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3">
-          <label className="text-sm font-medium">Price History</label>
+          <label className="text-sm font-medium text-ink">Price history</label>
           <div className="space-y-2">
             {prices.map((price, index) => (
               <div key={index} className="flex items-center gap-2">
-                <span className="w-32 flex-none text-sm text-muted-foreground">
+                <span className="w-32 flex-none text-sm text-ink-2">
                   {priceLabel(index, prices.length)}
                 </span>
                 <Input
@@ -86,39 +86,40 @@ export function EditListingForm({ listingId, listing }: EditListingFormProps) {
                   min={1}
                   value={price}
                   onChange={(e) => handlePriceChange(index, e.target.value)}
-                  className="flex-1"
+                  className="fb-data flex-1"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
+                  aria-label="Remove price entry"
                   onClick={() => handleRemovePrice(index)}
                   disabled={prices.length <= 1}
-                  className="text-muted-foreground hover:text-destructive"
+                  className="text-ink-2 hover:text-redline"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Sym name="delete" sm />
                 </Button>
               </div>
             ))}
           </div>
           <Button type="button" variant="outline" size="sm" onClick={handleAddPrice}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Sym name="add" sm />
             Add price update
           </Button>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-ink-2">
             The last entry is treated as your current asking price. Add an entry whenever you
             change your price to track cuts over time.
           </p>
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Days on Market</label>
+          <label className="text-sm font-medium text-ink">Days on market</label>
           <Input
             type="number"
             min={0}
             value={daysOnMarket}
             onChange={(e) => setDaysOnMarket(e.target.value)}
-            className="max-w-xs"
+            className="fb-data max-w-xs"
           />
         </div>
 

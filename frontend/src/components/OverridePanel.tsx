@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { Sym } from "@/components/ui/sym";
 import type { ListingData, OverridePayload, Scenario } from "@/lib/types";
 
 interface OverridePanelProps {
@@ -40,6 +41,7 @@ export function OverridePanel({
   const [floorPrice, setFloorPrice] = useState(min);
   const [lockedScenarioId, setLockedScenarioId] = useState(NO_LOCK);
   const [advisorNote, setAdvisorNote] = useState("");
+  const [justApplied, setJustApplied] = useState(false);
 
   const handleApply = () => {
     onOverrideSubmit({
@@ -47,18 +49,22 @@ export function OverridePanel({
       locked_scenario_id: lockedScenarioId === NO_LOCK ? "" : lockedScenarioId,
       advisor_note: advisorNote,
     });
+    setJustApplied(true);
+    setTimeout(() => setJustApplied(false), 4000);
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Advisor Controls</CardTitle>
+        <CardTitle>Advisor controls</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Price Floor</label>
-            <span className="text-sm font-semibold">{formatCurrency(floorPrice)}</span>
+            <label className="text-sm font-medium text-ink">Price floor</label>
+            <span className="fb-data text-sm font-semibold text-ink">
+              {formatCurrency(floorPrice)}
+            </span>
           </div>
           <Slider
             min={min}
@@ -70,7 +76,7 @@ export function OverridePanel({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Lock Scenario</label>
+          <label className="text-sm font-medium text-ink">Lock scenario</label>
           <Select value={lockedScenarioId} onValueChange={setLockedScenarioId}>
             <SelectTrigger>
               <SelectValue placeholder="No lock" />
@@ -87,17 +93,25 @@ export function OverridePanel({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Advisor Note</label>
+          <label className="text-sm font-medium text-ink">Advisor note</label>
           <Textarea
-            placeholder="Add context or override reasoning..."
+            placeholder="Add context or override reasoning…"
             value={advisorNote}
             onChange={(e) => setAdvisorNote(e.target.value)}
           />
         </div>
 
         <Button onClick={handleApply} className="w-full">
-          Apply Override
+          <Sym name="tune" sm />
+          Apply override
         </Button>
+
+        {justApplied && (
+          <p className="flex items-center gap-1.5 text-sm text-ok">
+            <Sym name="check_circle" className="text-[18px]" />
+            Override applied. Re-running the analysis.
+          </p>
+        )}
       </CardContent>
     </Card>
   );
